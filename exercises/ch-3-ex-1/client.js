@@ -87,7 +87,8 @@ app.get('/callback', function(req, res){
 		}
 	);
 	var body = JSON.parse(tokRes.getBody());
-	res.render('index', { access_token: body.access_token, scope: scope});
+	access_token = body.access_token;
+	res.render('index', { access_token: access_token, scope: scope});
 });
 
 app.get('/fetch_resource', function(req, res) {
@@ -96,6 +97,22 @@ app.get('/fetch_resource', function(req, res) {
 	 * Use the access token to call the resource server
 	 */
 	
+	if (!access_token) {
+		res.render('error', { error: 'Missing access token.'});
+		return;
+	}
+	var headers = {
+		Authorization: 'Bearer ' + access_token
+	};
+	var resource = request('POST', protectedResource, {headers: headers});
+	if (resource.statusCode >= 200 && resource.statusCode < 300) {
+		var body = JSON.parse(resource.getBody());
+		res.render('data', {resource: body});
+		return;
+	} else {
+		res.render('Error', {error: 'Server returned response code: ' + resource.statusCode});
+		return;
+	}
 });
 
 var buildUrl = function(base, options, hash) {
