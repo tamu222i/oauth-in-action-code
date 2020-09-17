@@ -27,8 +27,8 @@ var authServer = {
  * Add the client information in here
  */
 var client = {
-	"client_id": "",
-	"client_secret": "",
+	"client_id": "oauth-client-1",
+	"client_secret": "oauth-client-secret-1",
 	"redirect_uris": ["http://localhost:9000/callback"]
 };
 
@@ -48,6 +48,12 @@ app.get('/authorize', function(req, res){
 	/*
 	 * Send the user to the authorization server
 	 */
+	var authorizeUrl = buildUrl(authServer.authorizationEndpoint, {
+		response_type: 'code',
+		client_id: client.client_id,
+		redirect_uri: client.redirect_uris[0]
+	})
+	res.redirect(authorizeUrl);
 	
 });
 
@@ -89,7 +95,8 @@ var encodeClientCredentials = function(clientId, clientSecret) {
 
 app.use('/', express.static('files/client'));
 
-var server = app.listen(9000, 'localhost', function () {
+//var server = app.listen(9000, 'localhost', function () {
+var server = app.listen(9000, '0.0.0.0', function () {
   var host = server.address().address;
   var port = server.address().port;
   console.log('OAuth Client is listening at http://%s:%s', host, port);
